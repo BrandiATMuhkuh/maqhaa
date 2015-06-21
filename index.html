@@ -1,0 +1,31 @@
+<!doctype html><html lang=""><head><meta charset="utf-8"><meta name="description" content=""><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="generator" content="Polymer Starter Kit"><title>Maqhaa -- مقهى</title><meta name="theme-color" content="#303F9F"><link rel="manifest" href="manifest.json"><meta name="msapplication-TileColor" content="#3372DF"><meta name="mobile-web-app-capable" content="yes"><meta name="application-name" content="Polymer Starter Kit"><link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><meta name="apple-mobile-web-app-title" content="Polymer Starter Kit"><link rel="apple-touch-icon" href="images/touch/apple-touch-icon.png"><meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png"><link rel="stylesheet" href="styles/main.css"><script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=false&libraries=places&region=NZ"></script><script src="scripts/maplabel-compiled.js"></script><script src="scripts/geolocationmarker-compiled.js"></script><script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script><link rel="import" href="elements/elements.vulcanized.html"><style type="text/css">
+    html, body { height:100%; width:100%; margin: 0px;
+    padding: 0px;}
+  </style></head><body unresolved="" class="fullbleed layout vertical"><span id="browser-sync-binding"></span><template is="dom-bind" id="app"><paper-toolbar id="mainToolbar"><span class="flex"></span><paper-icon-button icon="refresh"></paper-icon-button><paper-icon-button icon="search"></paper-icon-button><div class="middle paper-font-display2 app-name">Maqhaa مقهى</div><div class="bottom title"></div></paper-toolbar><div class="content" style="height: calc(98.66% - 56px);margin: 0px; padding: 0px; background-color:white;"><style>
+              #map-canvas {
+                height: 100%;
+                margin: 0px;
+                padding: 0px
+              }
+            </style><div id="map-canvas"></div></div><style is="custom-style">
+          paper-dialog.colored {
+            border: 2px solid;
+            border-color: var(--paper-green-500);
+            background-color: var(--paper-light-green-50);
+            color: var(--paper-green-500);
+          }
+
+          paper-dialog{
+          }
+
+          paper-dialog.size-position {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+          }
+
+          paper-dialog.size-position {
+            width: 300px;
+            height: 300px;
+          }
+        </style><paper-dialog id="scrolling" entry-animation="scale-up-animation" exit-animation="fade-out-animation" modal=""><form is="iron-form" id="form"><paper-input name="name" label="Caffee Name"></paper-input><paper-input name="s" label="Price Small (eg.: 4.2)"></paper-input><paper-input name="r" label="Price Regular (eg.: 4.5)"></paper-input><paper-input name="l" label="Price Large (eg.: 4.7)"></paper-input></form><div class="buttons"><paper-button dialog-dismiss="">Decline</paper-button><paper-button dialog-confirm="" autofocus="">Accept</paper-button></div></paper-dialog><my-cafe><paper-toast id="caching-complete" duration="6000" text="Caching complete! This app will work offline."></paper-toast><platinum-sw-register auto-register="" clients-claim="" skip-waiting="" on-service-worker-installed="displayInstalledToast"><platinum-sw-cache default-cache-strategy="networkFirst" precache-file="precache.json"></platinum-sw-cache></platinum-sw-register></my-cafe></template><script src="scripts/app.js"></script></body></html>
