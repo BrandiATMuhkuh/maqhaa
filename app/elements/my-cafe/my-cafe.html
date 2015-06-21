@@ -1,0 +1,243 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<dom-module id="my-cafe">
+    <style>
+      :host {
+        display: block;
+        position: fixed; bottom: 0; left: 0; height: 90px; z-index:3;
+        width: 100%;
+        background-color:white;
+        visibility: hidden;
+      }
+
+      #my-cafe-new {
+        position: fixed; bottom: 62px; right: 10px;  z-index:3;
+      }
+
+      @media (max-width: 600px) {
+        h1.paper-font-display1 {
+          font-size: 20px;
+        }
+      }
+
+      paper-fab.blue {
+        --paper-fab-background: var(--paper-light-blue-500);
+      }
+
+      paper-fab.red {
+        --paper-fab-background: var(--paper-red-500);
+      }
+
+      paper-fab.green {
+        --paper-fab-background: var(--paper-green-500);
+      }
+
+      paper-fab.orange {
+        --paper-fab-background: var(--paper-orange-500);
+      }
+
+      section > paper-button {
+        background-color: var(--google-grey-300);
+        padding: 5px;
+      }
+
+      section > paper-button:hover {
+        background-color: var(--paper-light-blue-200);
+        padding: 5px;
+      }
+
+      section > paper-button {
+        background-color: var(--google-grey-300);
+        padding: 5px;
+      }
+
+      section > paper-button:hover {
+        background-color: var(--paper-light-blue-200);
+        padding: 5px;
+      }
+
+
+
+    </style>
+
+  <template>
+      <h1 class="paper-font-display1"  on-track="handleTrack" on-click="regularTap">{{name}}</h1>
+      <template is="dom-repeat" items$="{{items}}" style="visibility: hidden;">
+        <my-coffee place_id="{{item.place_id}}" name="{{item.name}}" l="{{item.l}}" r="{{item.r}}" s="{{item.s}}"></my-coffee>
+        <br />
+      </template>
+
+    <paper-fab style="visibility: hidden;" icon="add" title="done" tabindex="0" class="blue" id="my-cafe-new" on-click="newClicked"></paper-fab>
+
+  </template>
+</dom-module>
+  <script>
+  (function() {
+    Polymer({
+      is: 'my-cafe',
+
+      isOpen: false,
+
+      listeners: {
+        track: 'handleTrack'
+      },
+
+      handleTrack: function(e) {
+        switch(e.detail.state) {
+          case 'start':
+            this.message = 'Tracking started!';
+            break;
+          case 'track':
+            this.message = 'Tracking in progress... ' +
+            e.detail.x + ', ' + e.detail.y;
+              this.style.height = 'calc(100% - '+(e.detail.y)+'px)';
+              document.getElementById('my-cafe-new').style.top = (e.detail.y-27)+'px';
+            break;
+          case 'end':
+            this.message = 'Tracking ended!';
+            break;
+        }
+      },
+
+      regularTap: function() {
+        console.log('make big');
+
+        if(this.isOpen){
+          this.style.height = '90px';
+          document.getElementById('my-cafe-new').style.bottom = '62px';
+          this.isOpen = false;
+        }else{
+          this.style.height = '60%';
+          document.getElementById('my-cafe-new').style.bottom = 'calc(60% - 27px)';
+          this.isOpen = true;
+        }
+
+
+      },
+
+      properties: {
+        items: {
+          type: Array,
+          notify: true,
+        },
+        name: {
+          type: String,
+          notify: true
+        },
+        place_id: {
+          type: String,
+          notify: true,
+          observer: 'place_idChanged'
+        }
+      },
+      newClicked: function(){
+        console.log('clicked', this.s);
+
+        var dialog = document.getElementById('scrolling');
+        dialog.querySelector('paper-input[name="name"]').value = '';
+
+
+        var bs = document.getElementById('scrolling').querySelectorAll('.buttons>paper-button');
+        var _this = this;
+        var clickMeAccept = function (){
+          console.log('Save');
+          bs[1].removeEventListener('click', clickMeAccept);
+          bs[0].removeEventListener('click', clickMeDecline);
+
+          this.name = dialog.querySelector('paper-input[name="name"]').value;
+          this.l = parseFloat(dialog.querySelector('paper-input[name="l"]').value);
+          this.r = parseFloat(dialog.querySelector('paper-input[name="r"]').value);
+          this.s = parseFloat(dialog.querySelector('paper-input[name="s"]').value);
+
+          console.log(this);
+          var __this = this;
+
+
+
+          var req = _this.place_id;
+          var mName = this.name;
+          console.log('req', req);
+
+
+          fire.child(req).once('value', function(snap) {
+             console.log('I fetched a user!', snap.val());
+
+             var ms = {};
+             var s = {l:parseFloat(__this.l), r:parseFloat(__this.r), s:parseFloat(__this.s)};
+             ms[mName] = s;
+             console.log('save this', s);
+
+             var set = req+'/'+mName;
+             console.log('set',set);
+             fire.child(set).set(s);
+
+             if(snap.val() === null){
+               var cs = {};
+               cs[req] = ms;
+               console.log('cs', cs);
+               //fire.child(req).set(cs);
+             }else{
+               console.log('ms', ms);
+               //fire.child(req).set(ms);
+             }
+          });
+
+        };
+
+        var clickMeDecline = function (){
+          console.log('decline');
+          bs[1].removeEventListener('click', clickMeAccept);
+          bs[0].removeEventListener('click', clickMeDecline);
+        };
+
+        bs[1].removeEventListener('click', clickMeAccept);
+        bs[0].removeEventListener('click', clickMeDecline);
+        // Attach an event handler to <div>
+        bs[1].addEventListener('click', clickMeAccept);
+        bs[0].addEventListener('click', clickMeDecline);
+
+
+
+        console.log(dialog);
+        if (dialog) {
+          dialog.open();
+        }
+      },
+
+      ready: function() {
+        this.items = [];
+      },
+
+      place_idChanged: function(newValue) {
+        console.log('Playe changed', newValue);
+        //visibility: hidden;
+        this.style.visibility = 'visible';
+        document.querySelector('paper-fab').style.visibility = 'visible';
+        console.log(this);
+        this.items = [];
+        fire.child(newValue).on('value', function(snap) {
+           var caf = snap.val();
+           var _items = [];
+           for(var bean in caf){
+             _items.push({
+               place_id: newValue,
+               name: bean,
+               l: caf[bean].l,
+               r: caf[bean].r,
+               s: caf[bean].s
+             });
+           }
+           this.items = _items;
+        }.bind(this));
+      }
+    });
+    })();
+  </script>

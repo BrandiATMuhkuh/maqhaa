@@ -1,0 +1,274 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<dom-module id="my-coffee">
+    <style  is="custom-style">
+
+      :host {
+      }
+
+      .my-caffee{
+        vertical-align: middle;
+      }
+
+      .my-caffee-number{
+        float:right;
+        font-size: large;
+      }
+
+      .my-caffee-number input{
+          width: 2.2em;
+          font-size: large;
+          border:none;
+      }
+
+      .my-caffee-name{
+        font-weight: bold;
+        font-size: large;
+        margin-left: 0.3em;
+      }
+
+      paper-fab.blue {
+        --paper-fab-background: var(--paper-light-blue-500);
+      }
+
+      paper-fab.red {
+        --paper-fab-background: var(--paper-red-500);
+      }
+
+      paper-fab.green {
+        --paper-fab-background: var(--paper-green-500);
+      }
+
+      paper-fab.orange {
+        --paper-fab-background: var(--paper-orange-500);
+      }
+
+      .flip {
+        display:inline-block;
+         width: 45px;
+         height: 45px;
+         background-color: none;
+      }
+      .flip .card.flipped {
+        transform: rotatey(180deg);
+      }
+      .flip .card {
+        width: 45px;
+        height: 45px;
+        transform-style: preserve-3d;
+        transition: 0.8s;
+      }
+      .flip .card .face {
+        width: 45px;
+        height: 45px;
+        backface-visibility: hidden;
+        z-index: 2;
+        line-height: 45px;
+      }
+      .flip .card .front {
+        position: absolute;
+        z-index: 1;
+          background: none;
+          color: white;
+          cursor: pointer;
+      }
+      .flip .card .back {
+        -webkit-transform: rotatey(180deg);
+          background: none;
+          background: none;
+          color: black;
+          cursor: pointer;
+      }
+
+
+
+    </style>
+  <template>
+      <!--
+      <div class="flip">
+        <div class="card"  onclick="this.classList.toggle('flipped');">
+          <div class="face front">
+            <paper-fab mini icon="create" class="red"></paper-fab>
+          </div>
+          <div class="face back">
+            <paper-fab mini icon="done" title="done" tabindex="0" class="green"></paper-fab>
+          </div>
+        </div>
+      </div>
+    -->
+      <paper-fab mini icon="create" class="red" on-click="newClicked"></paper-fab>
+      <span class="my-caffee-name">{{name}}</span>
+      <span class="my-caffee-number">
+        $<span>{{l}}</span>
+        $<span>{{r}}</span>
+        $<span>{{s}}</span>
+      </span>
+
+
+
+
+  </template>
+
+</dom-module>
+  <script>
+
+
+    (function () {
+      new Polymer({
+        is: 'my-coffee',
+        properties: {
+          name: {
+            type: String,
+            value: 'Welcome',
+            notify: true
+          },
+          l: {
+            type: Number,
+            value: 0.0,
+            notify: true
+          },
+          r: {
+            type: Number,
+            value: 0.0,
+            notify: true
+          },
+          s: {
+            type: Number,
+            value: 0.0,
+            notify: true
+          },
+          place_id: {
+            type: String,
+            notify: true,
+            value: 'null'
+          },
+          edit:{
+            type: Boolean,
+            value: false
+          },
+
+          iGotIclicked: {
+            type: Object
+          }
+        },
+
+        observers: [
+          'myobs(place_id, name, l, s, r)'
+        ],
+
+        myobs: function(place_id, name, l, s, r){
+          console.log('observer', place_id, name, l, s, r, this.properties);
+          this.properties.place_id.value = place_id;
+          this.properties.name.value = name;
+          this.properties.l.value = l;
+          this.properties.s.value = s;
+          this.properties.r.value = r;
+        },
+
+        newClicked: function(){
+          console.log('clicked', this.s);
+
+          var dialog = document.getElementById('scrolling');
+          dialog.querySelector('paper-input[name="name"]').value = this.name;
+          dialog.querySelector('paper-input[name="l"]').value = parseFloat(this.l);
+          dialog.querySelector('paper-input[name="r"]').value = parseFloat(this.r);
+          dialog.querySelector('paper-input[name="s"]').value = parseFloat(this.s);
+
+
+          var bs = document.getElementById('scrolling').querySelectorAll('.buttons>paper-button');
+          var _this = this;
+          var clickMeAccept = function (){
+            console.log('Save');
+            bs[1].removeEventListener('click', clickMeAccept);
+            bs[0].removeEventListener('click', clickMeDecline);
+
+            this.name = dialog.querySelector('paper-input[name="name"]').value;
+            this.l = parseFloat(dialog.querySelector('paper-input[name="l"]').value);
+            this.r = parseFloat(dialog.querySelector('paper-input[name="r"]').value);
+            this.s = parseFloat(dialog.querySelector('paper-input[name="s"]').value);
+
+            console.log(this);
+            var __this = this;
+
+
+
+            var req = _this.properties.place_id.value+'/'+this.name;
+            console.log('req', req);
+
+            fire.child(req).once('value', function(snap) {
+               console.log('I fetched a user!', snap.val());
+
+
+               var s = {l:parseFloat(__this.l), r:parseFloat(__this.r), s:parseFloat(__this.s)};
+               console.log('save this', s);
+               fire.child(req).set(s);
+            });
+
+          };
+
+          var clickMeDecline = function (){
+            console.log('decline');
+            bs[1].removeEventListener('click', clickMeAccept);
+            bs[0].removeEventListener('click', clickMeDecline);
+          };
+
+          bs[1].removeEventListener('click', clickMeAccept);
+          bs[0].removeEventListener('click', clickMeDecline);
+          // Attach an event handler to <div>
+          bs[1].addEventListener('click', clickMeAccept);
+          bs[0].addEventListener('click', clickMeDecline);
+
+
+
+          console.log(dialog);
+          if (dialog) {
+            dialog.open();
+          }
+        },
+
+        ready: function(){
+          //var editButton = this.querySelector('.card');
+          //console.log(this, 'props', this.properties);
+          //var _this = this;
+          /*
+          editButton.addEventListener("click", function(f){
+
+            console.log(_this.properties);
+            /*
+            if(_this.properties.edit.value === true){
+              console.log("save", _this.properties);
+              _this.properties.edit.value = false;
+              var req = _this.properties.place_id.value+'/'+_this.properties.name.value;
+              console.log('req', req);
+              fire.child(req).once('value', function(snap) {
+                 console.log('I fetched a user!', snap.val());
+
+                 var s = {l:parseFloat(_this.properties.l.value), r:parseFloat(_this.properties.r.value), s:parseFloat(_this.properties.s.value)};
+                 console.log("save this", s);
+                 fire.child(req).set(s);
+              });
+            }else{
+              console.log("start editiing");
+              _this.properties.edit.value = true;
+            }
+
+
+
+
+
+          });*/
+
+        }
+      });
+
+
+    })();
+  </script>
